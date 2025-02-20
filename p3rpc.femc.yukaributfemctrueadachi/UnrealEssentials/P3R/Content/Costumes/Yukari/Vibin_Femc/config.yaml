@@ -1,0 +1,9 @@
+base:
+  mesh_path: /Game/Costumes/Player/Vibin_Femc/base-mesh.uasset
+costume:
+  mesh_path: /Game/Costumes/Player/Vibin_Femc/costume-mesh.uasset
+face:
+  mesh_path: dieatlus
+hair:
+  mesh_path: dieatlus
+name: Vibin Femc

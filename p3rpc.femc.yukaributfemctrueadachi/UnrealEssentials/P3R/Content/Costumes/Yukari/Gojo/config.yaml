@@ -1,0 +1,9 @@
+base:
+  mesh_path: /Game/Xrd777/Characters/Player/FemC/Femc_Skeleton.uasset
+costume:
+  mesh_path: /Game/Costumes/Player/Gojo/costume-mesh.uasset
+face:
+  mesh_path: /Game/Costumes/Player/Gojo/face-mesh.uasset
+hair:
+  mesh_path: /Game/Costumes/Player/Gojo/hair-mesh.uasset
+name: Strongest Sorcerer Attire
