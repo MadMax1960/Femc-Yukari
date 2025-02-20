@@ -3,6 +3,7 @@ using p3rpc.femc.yukaributfemctrueadachi.Template;
 using Reloaded.Hooks.ReloadedII.Interfaces;
 using Reloaded.Mod.Interfaces;
 using UnrealEssentials.Interfaces;
+using Unreal.ObjectsEmitter.Interfaces;
 
 namespace p3rpc.femc.yukaributfemctrueadachi
 {
@@ -41,6 +42,9 @@ namespace p3rpc.femc.yukaributfemctrueadachi
 		/// The configuration of the currently executing mod.
 		/// </summary>
 		private readonly IModConfig _modConfig;
+		private AssetRedirector _assetRedirector;
+		private string modName;
+		private IUnreal unreal;
 
 		public Mod(ModContext context)
 		{
@@ -50,6 +54,23 @@ namespace p3rpc.femc.yukaributfemctrueadachi
 			_owner = context.Owner;
 			_configuration = context.Configuration;
 			_modConfig = context.ModConfig;
+			modName = _modConfig.ModName;
+
+			// Get the UnrealEssentials and Unreal interfaces from the mod loader
+			var unrealEssentialsController = _modLoader.GetController<IUnrealEssentials>();
+			if (unrealEssentialsController == null || !unrealEssentialsController.TryGetTarget(out var unrealEssentials))
+			{
+				_logger.WriteLine($"Unable to get controller for Unreal Essentials, please be sure to ping @DniweTamp in the femc reloaded server.", System.Drawing.Color.Pink);
+				return;
+			}
+
+			// Attempt to get the Unreal interface
+			var unrealController = _modLoader.GetController<IUnreal>();
+			if (unrealController == null || !unrealController.TryGetTarget(out unreal))
+			{
+				_logger.WriteLine($"Unable to get Unreal interface.", System.Drawing.Color.Pink);
+				return;
+			}
 
 			var enabledMods = this._modLoader.GetAppConfig().EnabledMods;
 			var femcEnabled = enabledMods.Contains("p3rpc.femc");
@@ -60,15 +81,7 @@ namespace p3rpc.femc.yukaributfemctrueadachi
 				foldersToAdd.Add("TestFolder");
 			}
 
-			var unrealEssentialsController = _modLoader.GetController<IUnrealEssentials>();
-			if (unrealEssentialsController == null || !unrealEssentialsController.TryGetTarget(out var unrealEssentials))
-			{
-				_logger.WriteLine($"Femc over Yukari Unable to get controller for Unreal Essentials, please be sure to ping @DniweTamp in the femc reloaded server.", System.Drawing.Color.Pink);
-				return;
-			}
-
 			var modDir = _modLoader.GetDirectoryForModId(_modConfig.ModId);
-
 			foreach (var folderName in foldersToAdd)
 			{
 				var filesPath = Path.Combine(modDir, folderName);
@@ -76,12 +89,11 @@ namespace p3rpc.femc.yukaributfemctrueadachi
 				unrealEssentials.AddFromFolder(filesPath);
 			}
 
+			_assetRedirector = new AssetRedirector(unreal, modName);
+			_assetRedirector.RedirectPlayerAssets();
 
 			// For more information about this template, please see
 			// https://reloaded-project.github.io/Reloaded-II/ModTemplate/
-
-			// If you want to implement e.g. unload support in your mod,
-			// and some other neat features, override the methods in ModBase.
 
 			// TODO: Implement some mod logic
 		}
@@ -95,7 +107,6 @@ namespace p3rpc.femc.yukaributfemctrueadachi
 		public override void ConfigurationUpdated(Config configuration)
 		{
 			// Apply settings from configuration.
-			// ... your code here.
 			_configuration = configuration;
 			_logger.WriteLine($"[{_modConfig.ModId}] Config Updated: Applying");
 		}
