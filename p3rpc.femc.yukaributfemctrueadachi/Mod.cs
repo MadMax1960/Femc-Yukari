@@ -97,12 +97,6 @@ namespace p3rpc.femc.yukaributfemctrueadachi
 
 			// TODO: Implement some mod logic
 		}
-
-		public void if_you_find_this_dm_me_for_20_bucks_true()
-		{
-			// :true:
-		}
-
 		#region Standard Overrides
 		public override void ConfigurationUpdated(Config configuration)
 		{
