@@ -54,26 +54,26 @@ namespace p3rpc.femc.yukaributfemctrueadachi
 			_owner = context.Owner;
 			_configuration = context.Configuration;
 			_modConfig = context.ModConfig;
+			_assetRedirector = new AssetRedirector(unreal, modName);
+			_assetRedirector.RedirectPlayerAssets();
 			modName = _modConfig.ModName;
 
-			// Get the UnrealEssentials and Unreal interfaces from the mod loader
+			var modDir = _modLoader.GetDirectoryForModId(_modConfig.ModId);
+			var enabledMods = this._modLoader.GetAppConfig().EnabledMods;
+			var femcEnabled = enabledMods.Contains("p3rpc.femc");
+			var unrealController = _modLoader.GetController<IUnreal>();
 			var unrealEssentialsController = _modLoader.GetController<IUnrealEssentials>();
+			
 			if (unrealEssentialsController == null || !unrealEssentialsController.TryGetTarget(out var unrealEssentials))
 			{
 				_logger.WriteLine($"Unable to get controller for Unreal Essentials, please be sure to ping @DniweTamp in the femc reloaded server.", System.Drawing.Color.Pink);
 				return;
 			}
-
-			// Attempt to get the Unreal interface
-			var unrealController = _modLoader.GetController<IUnreal>();
 			if (unrealController == null || !unrealController.TryGetTarget(out unreal))
 			{
 				_logger.WriteLine($"Unable to get Unreal interface.", System.Drawing.Color.Pink);
 				return;
 			}
-
-			var enabledMods = this._modLoader.GetAppConfig().EnabledMods;
-			var femcEnabled = enabledMods.Contains("p3rpc.femc");
 
 			List<string> foldersToAdd = new List<string>();
 			if (!femcEnabled)
@@ -81,21 +81,12 @@ namespace p3rpc.femc.yukaributfemctrueadachi
 				foldersToAdd.Add("TestFolder");
 			}
 
-			var modDir = _modLoader.GetDirectoryForModId(_modConfig.ModId);
 			foreach (var folderName in foldersToAdd)
 			{
 				var filesPath = Path.Combine(modDir, folderName);
 				_logger.WriteLine($"Loading folder: {folderName}", System.Drawing.Color.Pink);
 				unrealEssentials.AddFromFolder(filesPath);
 			}
-
-			_assetRedirector = new AssetRedirector(unreal, modName);
-			_assetRedirector.RedirectPlayerAssets();
-
-			// For more information about this template, please see
-			// https://reloaded-project.github.io/Reloaded-II/ModTemplate/
-
-			// TODO: Implement some mod logic
 		}
 		#region Standard Overrides
 		public override void ConfigurationUpdated(Config configuration)
